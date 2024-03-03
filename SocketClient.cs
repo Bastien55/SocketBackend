@@ -4,6 +4,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using SocketBackend.Enumeration;
 
 namespace SocketBackend
 {
@@ -42,7 +43,9 @@ namespace SocketBackend
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine("Message reçu : " + message);
-                    OnMessageReceived?.Invoke(this, new Message(message.Split(':')[0], message.Split(':')[1]));
+                    OnMessageReceived?.Invoke(this, new Message(message.Split(';')[0], 
+                                                                message.Split(';')[1], 
+                                                                (TypeMessage) Enum.Parse(typeof(TypeMessage),message.Split(';')[2])));
                 }
             }
             catch (Exception ex)
@@ -64,6 +67,11 @@ namespace SocketBackend
             {
                 Console.WriteLine("Une erreur est survenue lors de l'envoi du message : " + ex.Message);
             }
+        }
+
+        public async Task SendMessageAsync(Message message)
+        {
+            await SendMessageAsync(message.ToString());
         }
     }
 }

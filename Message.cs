@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SocketBackend.Enumeration;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,10 +19,25 @@ namespace SocketBackend
         /// </summary>
         public string ContentMessage { get; set; }
 
-        public Message(string name, string message)
+        public TypeMessage TypeMessage { get; set; }  
+
+        public Message(string name, string message, TypeMessage type)
         {
             Name = name;
             ContentMessage = message;
+            TypeMessage = type;
+        }
+
+        public Message(TypeMessage type) 
+        {
+            TypeMessage = type;
+            Name = string.Empty;
+            ContentMessage = string.Empty;
+        }
+
+        public override string ToString()
+        {
+            return $"{Name};{ContentMessage};{TypeMessage}";
         }
     }
 }
