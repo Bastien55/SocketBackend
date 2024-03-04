@@ -43,9 +43,10 @@ namespace SocketBackend
                 {
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine("Message reçu : " + message);
-                    OnMessageReceived?.Invoke(this, new Message(message.Split(';')[0], 
-                                                                message.Split(';')[1], 
-                                                                (TypeMessage) Enum.Parse(typeof(TypeMessage),message.Split(';')[2])));
+                    var msgSplit = message.Split(';');
+                    OnMessageReceived?.Invoke(this, new Message(msgSplit[0],
+                                                                msgSplit[1], 
+                                                                (TypeMessage) Enum.Parse(typeof(TypeMessage), msgSplit[2])));
                 }
             }
             catch (Exception ex)
