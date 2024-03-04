@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using GameOfLife.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using SocketBackend.Models;
 
-namespace GameOfLife.Context
+namespace SocketBackend.Context
 {
     public partial class GameOfLifeContext : DbContext
     {

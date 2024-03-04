@@ -1,5 +1,5 @@
-﻿using GameOfLife.Context;
-using GameOfLife.Models;
+﻿using SocketBackend.Context;
+using SocketBackend.Models;
 using System;
 using System.Collections.Generic;
 using System.Data.Entity;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GameOfLife.Repository
+namespace SocketBackend.Repository
 {
     public class UserRepository : IRepository<User>
     {
@@ -21,6 +21,7 @@ namespace GameOfLife.Repository
         public void Delete(User entity)
         {
             GameContext.Remove(entity);
+            GameContext.SaveChanges();
         }
 
         public User FindByID(int id)
@@ -41,11 +42,13 @@ namespace GameOfLife.Repository
         public void Insert(User entity)
         {
             GameContext.Users.Add(entity);
+            GameContext.SaveChanges();
         }
 
         public void Update(User entity)
         {
             GameContext.Users.Update(entity);
+            GameContext.SaveChanges();
         }
     }
 }

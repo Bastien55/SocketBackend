@@ -1,5 +1,5 @@
-﻿using GameOfLife.Models;
-using SocketBackend.Enumeration;
+﻿using SocketBackend.Enumeration;
+using SocketBackend.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -27,6 +27,11 @@ namespace SocketBackend.Messages
         public UserMessage(User userModel, TypeMessage type) : base(type)
         {
             UserModel = userModel;
+        }
+
+        public override string ToString()
+        {
+            return base.ToString() + $";{Rule}";
         }
     }
 }

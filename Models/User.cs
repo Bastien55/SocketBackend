@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GameOfLife.Models
+namespace SocketBackend.Models
 {
     public partial class User
     {
