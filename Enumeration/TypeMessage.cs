@@ -15,6 +15,10 @@ namespace SocketBackend.Enumeration
         MSG_CHAT,
         USER_REQUEST_CONNECTION,
         USER_VALID_CONNECTION,
-        USER_INVALID_CONNECTION
+        USER_INVALID_CONNECTION,
+        NEW_USER,
+        USER_REGISTERED,
+        USER_ALREADY_EXIST,
+        USER_UPDATE
     }
 }

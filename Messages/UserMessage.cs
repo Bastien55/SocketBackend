@@ -17,6 +17,7 @@ namespace SocketBackend.Messages
         public UserMessage(string name, string message, TypeMessage type, string rule) : base(name, message, type)
         {
             UserModel = new User() { 
+                Id = int.TryParse(message, out var id) ? id : 0,
                 Name = name,
                 Rule = rule
             };
@@ -24,9 +25,10 @@ namespace SocketBackend.Messages
             Rule = rule;
         }
 
-        public UserMessage(User userModel, TypeMessage type) : base(type)
+        public UserMessage(User userModel, TypeMessage type) : base(userModel.Name ?? string.Empty, userModel.Id.ToString(), type)
         {
             UserModel = userModel;
+            Rule = UserModel.Rule ?? string.Empty;
         }
 
         public override string ToString()

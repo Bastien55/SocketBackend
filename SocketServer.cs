@@ -101,6 +101,7 @@ namespace SocketBackend
         {
             TypeMessage msgType;
             var messageSplit = message.Split(';');
+            UserMessage msg = null;
 
             if (Enum.TryParse(messageSplit[2], out msgType))
             {
@@ -108,7 +109,6 @@ namespace SocketBackend
                 {
                     case TypeMessage.USER_REQUEST_CONNECTION:
                         User user = Repository.FindByName(messageSplit[0]);
-                        UserMessage msg = null;
 
                         if (user != null)
                         {
@@ -121,6 +121,36 @@ namespace SocketBackend
                         }
 
                         await SendToClientAsync(msg.ToString(), client);
+                        break;
+                    case TypeMessage.NEW_USER:
+                        User newUser = new User() 
+                        { 
+                            Id = Repository.GetAll().Last().Id + 1,
+                            Name = messageSplit[0], // Name
+                            Rule = messageSplit[3]  // Rule
+                        };
+
+                        if (Repository.FindByName(newUser.Name) != null)
+                        {
+                            msg = new UserMessage(newUser, TypeMessage.USER_ALREADY_EXIST);
+                        }
+                        else
+                        {
+                            Repository.Insert(newUser);
+                            msg = new UserMessage(newUser, TypeMessage.USER_REGISTERED);
+                        }
+
+                        await SendToClientAsync(msg.ToString(), client);
+                        break;
+                    case TypeMessage.USER_UPDATE:
+                        var userToUpdate = Repository.FindByID(int.Parse(messageSplit[1]));
+                        if(userToUpdate != null)
+                        {
+                            userToUpdate.Name = messageSplit[0];
+                            userToUpdate.Rule = messageSplit[3];
+
+                            Repository.Update(userToUpdate);
+                        }
                         break;
                     default:
                         await BroadcastAsync(message);
