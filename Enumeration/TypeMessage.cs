@@ -12,6 +12,13 @@ namespace SocketBackend.Enumeration
         GAME_REPLAY,
         VALID_RULE,
         INVALID_RULE,
-        MSG_CHAT
+        MSG_CHAT,
+        USER_REQUEST_CONNECTION,
+        USER_VALID_CONNECTION,
+        USER_INVALID_CONNECTION,
+        NEW_USER,
+        USER_REGISTERED,
+        USER_ALREADY_EXIST,
+        USER_UPDATE
     }
 }

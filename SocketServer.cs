@@ -5,6 +5,11 @@ using System.Net.Sockets;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using SocketBackend.Enumeration;
+using SocketBackend.Messages;
+using SocketBackend.Context;
+using SocketBackend.Models;
+using SocketBackend.Repository;
 
 namespace SocketBackend
 {
@@ -14,9 +19,12 @@ namespace SocketBackend
         private readonly int _port;
         private List<TcpClient> _clients = new List<TcpClient>();
 
+        private UserRepository Repository { get; set; }
+
         public SocketServer(int port)
         {
             _port = port;
+            Repository = new UserRepository(new GameOfLifeContext());
         }
 
         public async Task StartAsync()
@@ -55,8 +63,7 @@ namespace SocketBackend
                     string message = Encoding.UTF8.GetString(buffer, 0, bytesRead);
                     Console.WriteLine("Message reçu : " + message);
 
-                    // Broadcast du message à tous les clients connectés
-                    await BroadcastAsync(message);
+                    await MessageFilter(message, client);
                 }
             }
             catch (Exception ex)
@@ -79,6 +86,76 @@ namespace SocketBackend
             {
                 NetworkStream stream = client.GetStream();
                 await stream.WriteAsync(buffer, 0, buffer.Length);
+            }
+        }
+
+        private async Task SendToClientAsync(string message, TcpClient client)
+        {
+            byte[] buffer = Encoding.UTF8.GetBytes(message);
+
+            NetworkStream stream = client.GetStream();
+            await stream.WriteAsync(buffer, 0 , buffer.Length);
+        }
+
+        private async Task MessageFilter(string message, TcpClient client)
+        {
+            TypeMessage msgType;
+            var messageSplit = message.Split(';');
+            UserMessage msg = null;
+
+            if (Enum.TryParse(messageSplit[2], out msgType))
+            {
+                switch(msgType)
+                {
+                    case TypeMessage.USER_REQUEST_CONNECTION:
+                        User user = Repository.FindByName(messageSplit[0]);
+
+                        if (user != null)
+                        {
+                            msg = new UserMessage(user, TypeMessage.USER_VALID_CONNECTION);
+                        }
+                        else
+                        {
+                            var usr = new User() { Name = messageSplit[0] };
+                            msg = new UserMessage(usr, TypeMessage.USER_INVALID_CONNECTION);
+                        }
+
+                        await SendToClientAsync(msg.ToString(), client);
+                        break;
+                    case TypeMessage.NEW_USER:
+                        User newUser = new User() 
+                        { 
+                            Id = Repository.GetAll().Last().Id + 1,
+                            Name = messageSplit[0], // Name
+                            Rule = messageSplit[3]  // Rule
+                        };
+
+                        if (Repository.FindByName(newUser.Name) != null)
+                        {
+                            msg = new UserMessage(newUser, TypeMessage.USER_ALREADY_EXIST);
+                        }
+                        else
+                        {
+                            Repository.Insert(newUser);
+                            msg = new UserMessage(newUser, TypeMessage.USER_REGISTERED);
+                        }
+
+                        await SendToClientAsync(msg.ToString(), client);
+                        break;
+                    case TypeMessage.USER_UPDATE:
+                        var userToUpdate = Repository.FindByID(int.Parse(messageSplit[1]));
+                        if(userToUpdate != null)
+                        {
+                            userToUpdate.Name = messageSplit[0];
+                            userToUpdate.Rule = messageSplit[3];
+
+                            Repository.Update(userToUpdate);
+                        }
+                        break;
+                    default:
+                        await BroadcastAsync(message);
+                        break;
+                }
             }
         }
     }
